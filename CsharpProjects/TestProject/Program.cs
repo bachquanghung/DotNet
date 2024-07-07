@@ -12,130 +12,176 @@ int playerY = 0;
 int foodX = 0;
 int foodY = 0;
 
-string[] states = {"('-')", "(^-^)", "(X_X)"};
-string[] foods = {"@@@@@", "$$$$$", "#####"};
+string[] states = { "('-')", "(^-^)", "(X_X)" };
+string[] foods = { "@@@@@", "$$$$$", "#####" };
 
 string player = states[0];
 
 int food = 0;
 
-InitializeGame();
-while (!shouldExit) 
+try
 {
-    if (TerminalResized()) 
+    InitializeGame();
+    while (!shouldExit)
     {
-        Console.Clear();
-        Console.Write("Console was resized. Program exiting.");
-        shouldExit = true;
-    } 
-    else 
-    {
-        if (PlayerIsFaster()) 
+        if (TerminalResized())
         {
-            Move(speed: 2, false);
-        } 
-        else if (PlayerIsSick()) 
-        {
-            FreezePlayer();
-        } else 
-        {
-            Move(otherKeysExit: false);
+            Console.Clear();
+            Console.Write("Console was resized. Program exiting.");
+            shouldExit = true;
         }
-        if (GotFood())
+        else
         {
-            ChangePlayer();
-            ShowFood();
+            if (PlayerIsFaster())
+            {
+                Move(speed: 2, false);
+            }
+            else if (PlayerIsSick())
+            {
+                FreezePlayer();
+            }
+            else
+            {
+                Move(otherKeysExit: false);
+            }
+            if (GotFood())
+            {
+                ChangePlayer();
+                ShowFood();
+            }
         }
     }
 }
+catch (Exception ex)
+{
+    Console.Clear();
+    Console.WriteLine($"An error occurred: {ex.Message}");
+    Console.WriteLine(ex.StackTrace);
+}
 
-bool TerminalResized() 
+bool TerminalResized()
 {
     return height != Console.WindowHeight - 1 || width != Console.WindowWidth - 5;
 }
 
-void ShowFood() 
+void ShowFood()
 {
-    food = random.Next(0, foods.Length);
+    try
+    {
+        food = random.Next(0, foods.Length);
 
-    foodX = random.Next(0, width - player.Length);
-    foodY = random.Next(0, height - 1);
+        foodX = random.Next(0, width - player.Length);
+        foodY = random.Next(0, height - 1);
 
-    Console.SetCursorPosition(foodX, foodY);
-    Console.Write(foods[food]);
+        Console.SetCursorPosition(foodX, foodY);
+        Console.Write(foods[food]);
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException("Error in ShowFood method", ex);
+    }
 }
 
-bool GotFood() 
+bool GotFood()
 {
     return playerY == foodY && playerX == foodX;
 }
 
-bool PlayerIsSick() 
+bool PlayerIsSick()
 {
     return player.Equals(states[2]);
 }
 
-bool PlayerIsFaster() 
+bool PlayerIsFaster()
 {
     return player.Equals(states[1]);
 }
 
-void ChangePlayer() 
+void ChangePlayer()
 {
-    player = states[food];
-    Console.SetCursorPosition(playerX, playerY);
-    Console.Write(player);
+    try
+    {
+        player = states[food];
+        Console.SetCursorPosition(playerX, playerY);
+        Console.Write(player);
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException("Error in ChangePlayer method", ex);
+    }
 }
 
-void FreezePlayer() 
+void FreezePlayer()
 {
-    System.Threading.Thread.Sleep(1000);
-    player = states[0];
+    try
+    {
+        System.Threading.Thread.Sleep(1000);
+        player = states[0];
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException("Error in FreezePlayer method", ex);
+    }
 }
 
-void Move(int speed = 1, bool otherKeysExit = false) 
+void Move(int speed = 1, bool otherKeysExit = false)
 {
     int lastX = playerX;
     int lastY = playerY;
-    
-    switch (Console.ReadKey(true).Key) {
-        case ConsoleKey.UpArrow:
-            playerY--; 
-            break;
-        case ConsoleKey.DownArrow: 
-            playerY++; 
-            break;
-        case ConsoleKey.LeftArrow:  
-            playerX -= speed; 
-            break;
-        case ConsoleKey.RightArrow: 
-            playerX += speed; 
-            break;
-        case ConsoleKey.Escape:     
-            shouldExit = true; 
-            break;
-        default:
-            shouldExit = otherKeysExit;
-            break;
-    }
 
-    Console.SetCursorPosition(lastX, lastY);
-    for (int i = 0; i < player.Length; i++) 
+    try
     {
-        Console.Write(" ");
+        switch (Console.ReadKey(true).Key)
+        {
+            case ConsoleKey.UpArrow:
+                playerY--;
+                break;
+            case ConsoleKey.DownArrow:
+                playerY++;
+                break;
+            case ConsoleKey.LeftArrow:
+                playerX -= speed;
+                break;
+            case ConsoleKey.RightArrow:
+                playerX += speed;
+                break;
+            case ConsoleKey.Escape:
+                shouldExit = true;
+                break;
+            default:
+                shouldExit = otherKeysExit;
+                break;
+        }
+
+        Console.SetCursorPosition(lastX, lastY);
+        for (int i = 0; i < player.Length; i++)
+        {
+            Console.Write(" ");
+        }
+
+        playerX = (playerX < 0) ? 0 : (playerX >= width ? width : playerX);
+        playerY = (playerY < 0) ? 0 : (playerY >= height ? height : playerY);
+
+        Console.SetCursorPosition(playerX, playerY);
+        Console.Write(player);
     }
-
-    playerX = (playerX < 0) ? 0 : (playerX >= width ? width : playerX);
-    playerY = (playerY < 0) ? 0 : (playerY >= height ? height : playerY);
-
-    Console.SetCursorPosition(playerX, playerY);
-    Console.Write(player);
+    catch (Exception ex)
+    {
+        throw new ApplicationException("Error in Move method", ex);
+    }
 }
 
-void InitializeGame() 
+void InitializeGame()
 {
-    Console.Clear();
-    ShowFood();
-    Console.SetCursorPosition(0, 0);
-    Console.Write(player);
+    try
+    {
+        Console.Clear();
+        ShowFood();
+        Console.SetCursorPosition(0, 0);
+        Console.Write(player);
+    }
+    catch (Exception ex)
+    {
+        throw new ApplicationException("Error in InitializeGame method", ex);
+    }
 }
